@@ -3,10 +3,10 @@ from recbole.utils import set_color
 import pandas as pd
 import torch
 import ast
-from LLM_rec_unlearning.recbole_utils import RecUtils
+from recbole_utils import RecUtils
 # 读取 CSV 文件，注意分隔符为制表符
-file_path_ori = 'ml-100k_LightGCN_prompt_top50.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
-file_path_llm = 'ml-100k_LightGCN_prompt_top50.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
+file_path_ori = 'ml-1m_LightGCN_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
+file_path_llm = 'ml-1m_LightGCN_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
 
 # file_path_ori = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
 # file_path_llm = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
@@ -18,11 +18,16 @@ file_path_list = [file_path_ori,file_path_llm]
 # 获取candidate item 的传统推荐模型
 MODEL = "LightGCN"
 # 处理的数据集
-DATASET = "ml-100k"
+DATASET = "ml-1m"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 topK = 5
+config_files = f"config_file/{DATASET}.yaml"
 config = {"normalize_all": False, "topk": [topK]}
-rec_utils = RecUtils(model=MODEL, dataset=DATASET, config_file_list=None, config_dict = config)
+config_file_list = (
+    config_files.strip().split(" ") if config_files else None
+)
+
+rec_utils = RecUtils(model=MODEL, dataset=DATASET, config_file_list=config_file_list, config_dict = config)
 def get_gpu_usage(device=None):
     r"""Return the reserved memory and total memory of given device in a string.
     Args:
