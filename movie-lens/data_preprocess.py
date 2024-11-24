@@ -1,4 +1,4 @@
-from LLM_rec_unlearning.recbole_utils import RecUtils
+from recbole_utils import RecUtils
 import pandas as pd
 import os
 import json

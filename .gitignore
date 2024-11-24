@@ -1,6 +1,9 @@
 /dataset/
 .idea
 __pycache__
+saved
+log\
+log_tensorboard
 .project
 .settings/
 .prefs
