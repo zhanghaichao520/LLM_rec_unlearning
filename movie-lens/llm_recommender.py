@@ -10,7 +10,7 @@ import time
 import re
 
 # 设置设备参数
-use_LLM = True
+use_LLM = False
 DEVICE = "cuda"  # 使用CUDA
 DEVICE_ID = "0"  # CUDA设备ID，如果未设置则为空
 CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE  # 组合CUDA设备信息

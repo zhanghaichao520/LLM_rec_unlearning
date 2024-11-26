@@ -5,8 +5,8 @@ import torch
 import ast
 from recbole_utils import RecUtils
 # 读取 CSV 文件，注意分隔符为制表符
-file_path_ori = 'ml-1m_LightGCN_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
-file_path_llm = 'ml-1m_LightGCN_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
+file_path_ori = 'ml-1m_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
+file_path_llm = 'ml-1m_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
 
 # file_path_ori = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
 # file_path_llm = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
