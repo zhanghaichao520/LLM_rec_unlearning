@@ -24,7 +24,7 @@ from recbole.utils import (
     get_environment,
 )
 
-model_file = "saved/LightGCN-Nov-20-2024_16-16-48.pth"
+model_file = "saved/BPR-Nov-25-2024_21-15-58.pth"
 def run_recbole(
     model=None,
     dataset=None,
@@ -111,9 +111,9 @@ def run_recbole(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", "-m", type=str, default="LightGCN", help="name of models")
+    parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-100k-forget", help="name of datasets"
+        "--dataset", "-d", type=str, default="ml-100k", help="name of datasets"
     )
     parser.add_argument("--config_files", type=str, default=None, help="config files")
     parser.add_argument(
@@ -141,11 +141,11 @@ if __name__ == "__main__":
     config_file_list = (
         args.config_files.strip().split(" ") if args.config_files else None
     )
-
+    config = {"topk": [5, 10, 20], "metrics":["Hit", "NDCG"]}
     res = run_recbole(
         model=args.model,
         dataset=args.dataset,
         config_file_list=config_file_list,
-        config_dict=None,
+        config_dict=config,
         saved=True,
     )

@@ -121,10 +121,9 @@ class RecUtils:
         self.model.load_other_parameter(checkpoint.get("other_parameter"))
 
         self.model.eval()
-        interaction = Interaction({self.dataset.uid_field: torch.tensor([user_id_token])})
+        interaction = Interaction({self.dataset.uid_field: torch.tensor([user_id_token])}).to(self.config["device"])
 
         scores = self.model.full_sort_predict(interaction)
-        # scores = scores.view(-1, self.test_data._dataset.item_num)
         scores[0] = -np.inf
 
         his_idx = self.user_id_token2his_idx_cache.get(user_id_token, None)

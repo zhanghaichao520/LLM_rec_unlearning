@@ -112,12 +112,15 @@ def run_recbole(
     return result  # for the single process
 
 
+import time
 
 if __name__ == "__main__":
+    start_time = time.time()
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", "-m", type=str, default="DMF", help="name of models")
+    parser.add_argument("--model", "-m", type=str, default="LightGCN", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-100k", help="name of datasets"
+        "--dataset", "-d", type=str, default="amazon-books", help="name of datasets"
     )
     parser.add_argument("--config_files", type=str, default=None, help="config files")
     parser.add_argument(
@@ -145,11 +148,15 @@ if __name__ == "__main__":
     config_file_list = (
         args.config_files.strip().split(" ") if args.config_files else None
     )
+    config = {"topk": [5, 10, 20], "metrics":["Hit", "NDCG", "mrr"]}
 
     res = run_recbole(
         model=args.model,
         dataset=args.dataset,
         config_file_list=config_file_list,
-        config_dict=None,
+        config_dict=config,
         saved=True,
     )
+
+    end_time = time.time()
+    print(f"代码执行时间: {end_time - start_time:.6f} 秒")
