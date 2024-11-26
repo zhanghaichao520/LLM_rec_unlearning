@@ -1,4 +1,4 @@
-from recbole_utils import RecUtils
+from DRAGRU.recbole_utils import RecUtils
 import pandas as pd
 import os
 import json
@@ -17,7 +17,7 @@ def find_model_files(directory_path, model_name):
 CANDIDATE_ITEM_NUM = 50
 HISTORY_INTER_NUM = 100
 # 获取candidate item 的传统推荐模型
-MODEL = "LightGCN"
+MODEL = "BPR"
 # 处理的数据集
 DATASET = "ml-1m"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating

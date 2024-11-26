@@ -3,10 +3,10 @@ from recbole.utils import set_color
 import pandas as pd
 import torch
 import ast
-from recbole_utils import RecUtils
+from DRAGRU.recbole_utils import RecUtils
 # 读取 CSV 文件，注意分隔符为制表符
-file_path_ori = 'ml-1m_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
-file_path_llm = 'ml-1m_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
+file_path_ori = 'ml-100k_LightGCN_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
+file_path_llm = 'ml-100k_LightGCN_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
 
 # file_path_ori = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
 # file_path_llm = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
@@ -18,11 +18,11 @@ file_path_list = [file_path_ori,file_path_llm]
 # 获取candidate item 的传统推荐模型
 MODEL = "LightGCN"
 # 处理的数据集
-DATASET = "ml-1m"
+DATASET = "ml-100k"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
-topK = 5
+topK = [5,10,20]
 config_files = f"config_file/{DATASET}.yaml"
-config = {"normalize_all": False, "topk": [topK]}
+config = {"normalize_all": False, "topk": topK}
 config_file_list = (
     config_files.strip().split(" ") if config_files else None
 )
@@ -43,11 +43,11 @@ def get_gpu_usage(device=None):
     return "{:.2f} G/{:.2f} G".format(reserved, total)
 
 
-for file_path in  file_path_list:
+for file_path in file_path_list:
     data = pd.read_csv(file_path, sep='\t', encoding='utf-8')
 
     # 初始化张量
-    topk_idx = torch.zeros((rec_utils.dataset.user_num-1, topK), dtype=torch.int64)
+    topk_idx = torch.zeros((rec_utils.dataset.user_num-1, max(topK)), dtype=torch.int64)
 
     exception_user = []
     for index, row in tqdm(
@@ -62,7 +62,7 @@ for file_path in  file_path_list:
             data_dict = ast.literal_eval(row['predict_score'])
 
             # 按照值从大到小排序，并取出前10个键
-            topK_ori_item_id = [key for key, value in sorted(data_dict.items(), key=lambda item: item[1], reverse=True)[:topK]]
+            topK_ori_item_id = [key for key, value in sorted(data_dict.items(), key=lambda item: item[1], reverse=True)[:max(topK)]]
 
             topK_encode_item_id = []
             for ori_item_id in topK_ori_item_id:
@@ -105,6 +105,8 @@ for file_path in  file_path_list:
 
     from recbole.evaluator.metrics import *
 
+    print(f"{file_path} result: ")
+
     hit = Hit(rec_utils.config)
     metric_val = hit.calculate_metric(data_struct)
     print(metric_val)
@@ -113,10 +115,6 @@ for file_path in  file_path_list:
     metric_val = ndcg.calculate_metric(data_struct)
     print(metric_val)
 
-    recall = Recall(rec_utils.config)
-    metric_val = recall.calculate_metric(data_struct)
-    print(metric_val)
+    print("\n")
 
-    precision = Precision(rec_utils.config)
-    metric_val = precision.calculate_metric(data_struct)
-    print(metric_val)
+
