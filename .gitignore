@@ -2,7 +2,7 @@
 .idea
 __pycache__
 saved
-log\
+log
 log_tensorboard
 .project
 .settings/
