@@ -19,11 +19,11 @@ HISTORY_INTER_NUM = 100
 # 获取candidate item 的传统推荐模型
 MODEL = "LightGCN"
 # 处理的数据集
-DATASET = "ml-1m"
+DATASET = "ml-100k"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 config = {"normalize_all": False}
 # config_files = None
-config_files = "config_file/ml-1m.yaml"
+config_files = "config_file/ml-100k.yaml"
 config_file_list = (
     config_files.strip().split(" ") if config_files else None
 )

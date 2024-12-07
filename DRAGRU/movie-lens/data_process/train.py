@@ -19,7 +19,6 @@ from recbole.utils import (
     get_environment,
 )
 
-model_file = "saved/BPR-Nov-25-2024_21-15-58.pth"
 def run_recbole(
     model=None,
     dataset=None,
@@ -73,11 +72,14 @@ def run_recbole(
     # trainer loading and initialization
     trainer = get_trainer(config["MODEL_TYPE"], config["model"])(config, model)
 
+    # model training
+    best_valid_score, best_valid_result = trainer.fit(
+        train_data, valid_data, saved=saved, show_progress=config["show_progress"]
+    )
 
     # model evaluation
     test_result = trainer.evaluate(
         test_data, load_best_model=saved, show_progress=config["show_progress"],
-        model_file=model_file
     )
 
     environment_tb = get_environment(config)
@@ -86,11 +88,13 @@ def run_recbole(
         + environment_tb.draw()
     )
 
-    # logger.info(set_color("best valid ", "yellow") + f": {best_valid_result}")
+    logger.info(set_color("best valid ", "yellow") + f": {best_valid_result}")
     logger.info(set_color("test result", "yellow") + f": {test_result}")
 
     result = {
+        "best_valid_score": best_valid_score,
         "valid_score_bigger": config["valid_metric_bigger"],
+        "best_valid_result": best_valid_result,
         "test_result": test_result,
     }
 
@@ -105,42 +109,51 @@ def run_recbole(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
-    parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-100k", help="name of datasets"
-    )
-    parser.add_argument("--config_files", type=str, default=None, help="config files")
-    parser.add_argument(
-        "--nproc", type=int, default=1, help="the number of process in this group"
-    )
-    parser.add_argument(
-        "--ip", type=str, default="localhost", help="the ip of master node"
-    )
-    parser.add_argument(
-        "--port", type=str, default="5678", help="the port of master node"
-    )
-    parser.add_argument(
-        "--world_size", type=int, default=-1, help="total number of jobs"
-    )
-    parser.add_argument(
-        "--group_offset",
-        type=int,
-        default=0,
-        help="the global rank offset of this group",
-    )
+    config = {"normalize_all": False, "topk": [10], "metrics": ["Hit", "mrr"]}
+    # 切割比例
+    ratios = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+    DATASET = "ml-100k"
+    MODEL = "BPR"
+
+    for ratio in ratios:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--model", "-m", type=str, default=MODEL, help="name of models")
+        parser.add_argument(
+            "--dataset", "-d", type=str, default=f'{DATASET}-{int(ratio * 100)}', help="name of datasets"
+        )
+        parser.add_argument("--config_files", type=str, default=config_file_list, help="config files")
+        parser.add_argument(
+            "--nproc", type=int, default=1, help="the number of process in this group"
+        )
+        parser.add_argument(
+            "--ip", type=str, default="localhost", help="the ip of master node"
+        )
+        parser.add_argument(
+            "--port", type=str, default="5678", help="the port of master node"
+        )
+        parser.add_argument(
+            "--world_size", type=int, default=-1, help="total number of jobs"
+        )
+        parser.add_argument(
+            "--group_offset",
+            type=int,
+            default=0,
+            help="the global rank offset of this group",
+        )
 
 
-    args, _ = parser.parse_known_args()
+        args, _ = parser.parse_known_args()
 
-    config_file_list = (
-        args.config_files.strip().split(" ") if args.config_files else None
-    )
-    config = {"topk": [5, 10, 20], "metrics":["Hit", "NDCG"]}
-    res = run_recbole(
-        model=args.model,
-        dataset=args.dataset,
-        config_file_list=config_file_list,
-        config_dict=config,
-        saved=True,
-    )
+        config_file_list = (
+            args.config_files.strip().split(" ") if args.config_files else None
+        )
+
+        res = run_recbole(
+            model=args.model,
+            dataset=args.dataset,
+            config_file_list=config_file_list,
+            config_dict=config,
+            saved=True,
+        )
+
+        print(f"finished: {ratio}")
