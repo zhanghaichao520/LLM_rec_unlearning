@@ -19,7 +19,9 @@ from recbole.utils import (
     get_environment,
 )
 
-model_file = "saved/BPR-Nov-25-2024_21-15-58.pth"
+model_file = "saved/BPR-ml-100k-Nov-27-2024_19-1"
+
+
 def run_recbole(
     model=None,
     dataset=None,
@@ -73,6 +75,7 @@ def run_recbole(
     # trainer loading and initialization
     trainer = get_trainer(config["MODEL_TYPE"], config["model"])(config, model)
 
+    rec_utils = RecUtils(model=MODEL, dataset=DATASET, config_file_list=config_file_list, config_dict=config)
 
     # model evaluation
     test_result = trainer.evaluate(

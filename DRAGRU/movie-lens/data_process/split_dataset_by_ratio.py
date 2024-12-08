@@ -6,7 +6,7 @@ import os
 # 创建保存目录
 output_dir = "dataset"
 DATASET = "ml-100k"
-
+COL_NAME = "class:token_seq"
 
 items = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item"), delimiter='\t')
 user_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.user"), delimiter='\t')
@@ -18,21 +18,105 @@ np.random.seed(42)
 # 切割比例
 ratios = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
 
+
+def get_cluster_label(k = 5):
+    import pandas as pd
+    import os
+
+    item_attr_path = os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item")
+    items = pd.read_csv(item_attr_path, delimiter='\t')
+
+    # 将 'class:token_seq' 列按空格拆分成单独的类别
+    categories = items[COL_NAME].str.split(' ', expand=True)
+
+    # 将所有类别合并为一个长列表
+    categories_list = categories.stack().reset_index(drop=True)
+
+    # 统计唯一类别的数量
+    categories = categories_list.unique()
+
+    # 输出类别种数
+    print(f'Number of unique categories: {len(categories)}')
+
+    import numpy as np
+    from sklearn.cluster import KMeans
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.decomposition import PCA
+
+    from gensim.models import KeyedVectors
+    from gensim.test.utils import datapath
+    model = KeyedVectors.load_word2vec_format(datapath(r"GoogleNews-vectors-negative300.bin"), binary=True)
+
+    # 获取每个类别的词向量
+    def get_word_vector(word):
+        try:
+            return model[word]  # 获取词的向量
+        except KeyError:
+            return np.zeros(model.vector_size)  # 如果模型中没有该词，返回零向量
+
+    # 获取所有类目的词向量
+    word_embeddings = np.array([get_word_vector(category) for category in categories])
+
+    # 数据标准化（对词向量进行标准化，以便KMeans表现更好）
+    scaler = StandardScaler()
+    word_embeddings_scaled = scaler.fit_transform(word_embeddings)
+
+    # 使用PCA进行降维，以便可视化
+    pca = PCA(n_components=2)
+    word_embeddings_2d = pca.fit_transform(word_embeddings_scaled)
+
+    # 应用KMeans聚类
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(word_embeddings_2d)
+
+    # 获取每个类目的聚类标签
+    cluster_labels = kmeans.labels_
+
+    categories_map = {}
+    # 输出每个类目对应的聚类标签
+    for category, label in zip(categories, cluster_labels):
+        if label not in categories_map:
+            categories_map[label] = []  # 如果该标签还没有，初始化为空列表
+        categories_map[label].append(category)
+
+    return categories_map
+
+import os
+import pandas as pd
+
+def get_testdata_by_labels(inter_df, categories):
+    filtered_item_ids = []
+    for idx, item in items.iterrows():
+        for c in categories:
+            if c in item[COL_NAME]:
+                filtered_item_ids.append(item["item_id:token"])
+                break
+
+    return inter_df[inter_df['item_id:token'].isin(filtered_item_ids)]
+
+
+categories_map = get_cluster_label()
+
 # 生成切割后的数据集
 for ratio in ratios:
     # 随机抽样 inter_data 中的交互数据
     inter_sampled = inter_data.sample(frac=ratio, random_state=42)
 
-    # 生成保存路径
-    output = os.path.join(output_dir, f'{DATASET}-{int(ratio * 100)}')
-    os.makedirs(output, exist_ok=True)
+    # 遍历 categories_map，打印每个聚类标签和对应的类目列表
+    for label, category_list in categories_map.items():
+        # print(f"Cluster {label}: {category_list}")
+        inter_sampled_labeldata = get_testdata_by_labels(inter_sampled, category_list)
 
-    # 保存切割后的交互数据
-    inter_sampled.to_csv(os.path.join(output, f'{DATASET}-{int(ratio * 100)}.inter'), sep='\t', index=False)
-    user_data.to_csv(os.path.join(output, f'{DATASET}-{int(ratio * 100)}.user'), sep='\t', index=False)
-    items.to_csv(os.path.join(output, f'{DATASET}-{int(ratio * 100)}.item'), sep='\t', index=False)
+        dataset_name = f"{DATASET}-{int(ratio * 100)}-{label}"
+        # 生成保存路径
+        output = os.path.join(output_dir, f'{dataset_name}')
+        os.makedirs(output, exist_ok=True)
+        # 保存切割后的交互数据
+        inter_sampled_labeldata.to_csv(os.path.join(output, f'{dataset_name}.inter'), sep='\t', index=False)
+        user_data.to_csv(os.path.join(output, f'{dataset_name}.user'), sep='\t', index=False)
+        items.to_csv(os.path.join(output, f'{dataset_name}.item'), sep='\t', index=False)
 
-    print(f"Generated: {ratio}")
+        print(f"Generated dataset: {dataset_name}, inter len: {len(inter_sampled_labeldata)}")
 
 # 输出成功消息
 print("切割后的数据集已生成！")
