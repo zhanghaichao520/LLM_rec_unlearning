@@ -7,7 +7,7 @@ import os
 output_dir = "dataset"
 DATASET = "ml-100k"
 COL_NAME = "class:token_seq"
-
+K = 5
 items = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item"), delimiter='\t')
 user_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.user"), delimiter='\t')
 inter_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.inter"), delimiter='\t')
@@ -19,7 +19,7 @@ np.random.seed(42)
 ratios = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
 
 
-def get_cluster_label(k = 5):
+def get_cluster_label(k = K):
     import pandas as pd
     import os
 
@@ -75,6 +75,7 @@ def get_cluster_label(k = 5):
     categories_map = {}
     # 输出每个类目对应的聚类标签
     for category, label in zip(categories, cluster_labels):
+        label = int(label)
         if label not in categories_map:
             categories_map[label] = []  # 如果该标签还没有，初始化为空列表
         categories_map[label].append(category)
@@ -96,6 +97,10 @@ def get_testdata_by_labels(inter_df, categories):
 
 
 categories_map = get_cluster_label()
+import json
+# 将矩阵写入 CSV 文件
+with open(f'{DATASET}-{K}-cluster.csv', 'w', newline='') as f:
+    json.dump(categories_map, f, indent=4)
 
 # 生成切割后的数据集
 for ratio in ratios:

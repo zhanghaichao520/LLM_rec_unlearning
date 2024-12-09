@@ -1,7 +1,7 @@
 ## 统计训练集里面的交互平均次数， 用来指导大模型的历史交互数量参数设置
 
 import pandas as pd
-from LLM_rec_unlearning.recbole_utils import RecUtils
+from DRAGRU.recbole_utils import RecUtils
 
 MODEL = "LightGCN"
 # 处理的数据集

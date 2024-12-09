@@ -55,6 +55,9 @@ item_attr_dict = {
     }
     for _, row in item_attr_df.iterrows()
 }
+def random_selection(user_history):
+    return user_history.head(HISTORY_INTER_NUM)
+
 
 # 生成推荐文本的函数
 def generate_recommendation_text(user_id):
@@ -63,7 +66,10 @@ def generate_recommendation_text(user_id):
     user_profile_text = f"He is {user_info['age:token']} years old, and works as {user_info['occupation:token']}."
 
     # 从训练集中获取用户的历史观看记录
-    user_history = inter_df_remain[inter_df_remain['user_id'] == str(user_id)].head(HISTORY_INTER_NUM)
+    user_history = inter_df_remain[inter_df_remain['user_id'] == str(user_id)]
+    # 随机策略
+    user_history = random_selection(user_history)
+
     history_movies = []
     for _, row in user_history.iterrows():
         item_info = item_attr_dict.get(str(row["item_id"]))
