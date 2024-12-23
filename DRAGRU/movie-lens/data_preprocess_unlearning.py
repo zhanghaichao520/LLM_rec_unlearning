@@ -4,6 +4,17 @@ import os
 import json
 from tqdm import tqdm
 from recbole.utils import set_color
+from enum import Enum
+
+class SelectionStrategy(Enum):
+    RANDOM = ("Random Selection", 1)
+    AVERAGE = ("Average Selection", 2)
+    GROUP = ("Group Selection", 3)
+    DP = ("DP Selection", 4)
+
+    def __init__(self, description, value):
+        self.description = description
+        self._value_ = value
 
 def find_model_files(directory_path, model_name):
     # 遍历文件夹中的所有文件
@@ -15,11 +26,12 @@ def find_model_files(directory_path, model_name):
     return None
 
 CANDIDATE_ITEM_NUM = 50
-HISTORY_INTER_NUM = 100
+HISTORY_INTER_LIMIT = 100
+selection_strategy = SelectionStrategy.AVERAGE
 # 获取candidate item 的传统推荐模型
 MODEL = "BPR"
 # 处理的数据集
-DATASET = "ml-1m"
+DATASET = "ml-100k"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 config_files = f"config_file/{DATASET}.yaml"
 config = {"normalize_all": False}
@@ -29,8 +41,8 @@ config_file_list = (
 
 DATASET_REMAIN = f"{DATASET}-remain"
 
-rec_utils = RecUtils(model=MODEL, dataset=DATASET, config_file_list=config_file_list, config_dict = config)
-rec_utils_remain = RecUtils(model=MODEL, dataset=DATASET_REMAIN, config_file_list=config_file_list, config_dict = config)
+rec_utils = RecUtils(model=MODEL, dataset=DATASET, config_file_list=config_file_list, config_dict=config)
+rec_utils_remain = RecUtils(model=MODEL, dataset=DATASET_REMAIN, config_file_list=config_file_list, config_dict=config)
 
 MODEL_FILE = find_model_files(directory_path=rec_utils.config["checkpoint_dir"], model_name=MODEL)
 # 训练传统模型， 获得模型文件， 用于生成prompt的候选集
@@ -51,13 +63,97 @@ item_attr_dict = {
     str(row["item_id:token"]): {
         "movie_title": row["movie_title:token_seq"],
         "release_year": row["release_year:token"],
-        "class": row["genre:token_seq"]
+        "class": row["class:token_seq"]
     }
     for _, row in item_attr_df.iterrows()
 }
-def random_selection(user_history):
-    return user_history.head(HISTORY_INTER_NUM)
 
+#====================item分类================================
+
+# 读取 JSON 格式的文件并将其转换为字典
+with open(f'{DATASET}-5-cluster.csv', 'r') as f:
+    categories_map = json.load(f)
+
+categories_num = len(categories_map)
+
+#创建分类的逆向映射：便于快速查找每个关键词对应的类别
+class_to_category = {}
+for category, keywords in categories_map.items():
+    for keyword in keywords:
+        class_to_category[keyword] = category
+
+def get_item_category(item_info):
+    item_classes = item_info['class'].split()  # class:token_seq列是空格分隔的
+    categories = []  # 存储匹配到的分类
+
+    # 检查每个类标签是否在字典的分类中
+    for item_class in item_classes:
+        if item_class in class_to_category:
+            categories.extend(class_to_category[item_class])
+
+    return categories
+
+
+def classify_item(user_history):
+    # 将分类结果存储为字典：key 为类别，value 为属于该类别的 item_id 列表
+    category_to_items = {str(category): [] for category in categories_map.keys()}
+    # 遍历每一行 DataFrame 进行分类
+    for _, row in user_history.iterrows():
+        item_id = str(row["item_id"])
+        categories = get_item_category(item_attr_dict.get(item_id))
+        category_to_items[random.choice(categories)].append(item_id)
+
+    return category_to_items
+
+
+import random
+
+def selection_by_ratio(category_to_items, ratio):
+    # 存储最终结果的列表
+    selected_items = set()
+
+    # 遍历每个分类及其对应的 item_id 列表
+    for category_id, items in category_to_items.items():
+        # 获取当前分类的保留比例
+        category_ratio = ratio.get(category_id, 0)
+
+        # 根据比例计算需要保留的 item 数量
+        num_items_to_select = int(len(items) * category_ratio)
+
+        # 随机选择需要保留的 item_id
+        selected_items.update(random.sample(items, num_items_to_select))
+
+    return selected_items
+
+
+def random_selection(user_history):
+    return user_history.head(HISTORY_INTER_LIMIT)
+
+def avg_selection(user_history):
+    category_to_items = classify_item(user_history)
+    ratio = {str(i): round(HISTORY_INTER_LIMIT/len(user_history), 1) for i in range(1, 6)}
+    selected_items = selection_by_ratio(category_to_items, ratio)
+    return user_history[user_history['item_id'].isin(selected_items)]
+
+def group_selection(user_history):
+    category_to_items = classify_item(user_history)
+    ratio = {}
+    # 遍历每个分类及其对应的 item_id 列表
+    for category_id, items in category_to_items.items():
+        category_ratio = round(len(items)/len(user_history), 1)
+        ratio[category_id] = round(category_ratio * HISTORY_INTER_LIMIT/len(items), 1)
+
+    selected_items = selection_by_ratio(category_to_items, ratio)
+    return user_history[user_history['item_id'].isin(selected_items)]
+
+def dp_selection(user_history):
+    category_to_items = classify_item(user_history)
+    ratio = {'1':5, '2':5, '3':10, '4':5, '5':5}
+    selected_items = selection_by_ratio(category_to_items, ratio)
+    return user_history[user_history['item_id'].isin(selected_items)]
+
+
+#==========================================================
 
 # 生成推荐文本的函数
 def generate_recommendation_text(user_id):
@@ -67,8 +163,20 @@ def generate_recommendation_text(user_id):
 
     # 从训练集中获取用户的历史观看记录
     user_history = inter_df_remain[inter_df_remain['user_id'] == str(user_id)]
-    # 随机策略
-    user_history = random_selection(user_history)
+    # 如果用户的交互数量过多， 使用一些策略筛选
+    if len(user_history) > HISTORY_INTER_LIMIT:
+        # 随机策略
+        if selection_strategy == SelectionStrategy.RANDOM:
+            user_history = random_selection(user_history)
+        # 平均策略
+        if selection_strategy == SelectionStrategy.AVERAGE:
+            user_history = avg_selection(user_history)
+        # 分组策略
+        if selection_strategy == SelectionStrategy.GROUP:
+            user_history = group_selection(user_history)
+        # 动态规划策略（背包优化）
+        if selection_strategy == SelectionStrategy.DP:
+            user_history = dp_selection(user_history)
 
     history_movies = []
     for _, row in user_history.iterrows():
@@ -139,8 +247,8 @@ for user_id in tqdm(user_profile_df["user_id:token"].unique(),
 
 
 # 保存到 JSON 文件
-with open(f'{DATASET}_{MODEL}_prompt_top{CANDIDATE_ITEM_NUM}_remain.json', "w", encoding="utf-8") as f:
+with open(f'{DATASET}_{MODEL}_prompt_top{CANDIDATE_ITEM_NUM}_{selection_strategy}_remain.json', "w", encoding="utf-8") as f:
     json.dump(recommendations_remain, f, ensure_ascii=False, indent=4)
 
-with open(f'{DATASET}_{MODEL}_prompt_top{CANDIDATE_ITEM_NUM}_forget.json', "w", encoding="utf-8") as f:
+with open(f'{DATASET}_{MODEL}_prompt_top{CANDIDATE_ITEM_NUM}_{selection_strategy}_forget.json', "w", encoding="utf-8") as f:
     json.dump(recommendations_forget, f, ensure_ascii=False, indent=4)

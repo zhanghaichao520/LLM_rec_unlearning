@@ -10,14 +10,14 @@ import time
 import re
 
 # 设置设备参数
-use_LLM = False
+use_LLM = True
 DEVICE = "cuda"  # 使用CUDA
 DEVICE_ID = "0"  # CUDA设备ID，如果未设置则为空
 CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE  # 组合CUDA设备信息
 model_path = '/root/haichao/modelscope_model/LLM-Research/'
 model_name = 'Meta-Llama-3-8B-Instruct'
 model_name_or_path = os.path.join(model_path, model_name)
-prompt_files = 'ml-1m_BPR_prompt_top50_remain.json'
+prompt_files = 'ml-100k_BPR_prompt_top50_SelectionStrategy.AVERAGE_remain.json'
 max_retries = 5  # 最大重试次数
 
 # 清理GPU内存函数

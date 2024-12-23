@@ -120,7 +120,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="amazon-magazine-subscriptions-18", help="name of datasets"
+        "--dataset", "-d", type=str, default="ml-100k", help="name of datasets"
     )
     parser.add_argument("--config_files", type=str, default=None, help="config files")
     parser.add_argument(

@@ -8,7 +8,7 @@ import random
 # 创建保存目录
 output_dir = "dataset"
 
-DATASET = "ml-1m"
+DATASET = "ml-100k"
 DATASET_forget = f"{DATASET}-forget"
 DATASET_remain = f"{DATASET}-remain"
 

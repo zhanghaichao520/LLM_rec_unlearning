@@ -5,8 +5,8 @@ import torch
 import ast
 from DRAGRU.recbole_utils import RecUtils
 # 读取 CSV 文件，注意分隔符为制表符
-file_path_ori = 'ml-1m_BPR_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
-file_path_llm = 'ml-1m_BPR_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
+file_path_ori = 'ml-100k_BPR_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
+file_path_llm = 'ml-100k_BPR_prompt_top50_remain.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
 
 # file_path_ori = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_ori.csv'
 # file_path_llm = 'ml-100k_LightGCN_prompt_top50_forget.json_Meta-Llama-3-8B-Instruct_result_llm.csv'
@@ -18,7 +18,7 @@ file_path_list = [file_path_ori,file_path_llm]
 # 获取candidate item 的传统推荐模型
 MODEL = "BPR"
 # 处理的数据集
-DATASET = "ml-1m"
+DATASET = "ml-100k"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 topK = [5,10,20]
 config_files = f"config_file/{DATASET}.yaml"
