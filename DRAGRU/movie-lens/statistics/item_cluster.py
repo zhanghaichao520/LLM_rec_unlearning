@@ -14,9 +14,11 @@ K = 5
 
 item_attr_path = os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item")
 items = pd.read_csv(item_attr_path, delimiter='\t')
-
 # 将 'class:token_seq' 列按空格拆分成单独的类别
-categories_list = items[COL_NAME].reset_index(drop=True)
+categories = items[COL_NAME].str.split(' ', expand=True)
+
+# 将所有类别合并为一个长列表
+categories_list = categories.stack().reset_index(drop=True)
 
 # 统计唯一类别的数量
 categories = categories_list.unique()
