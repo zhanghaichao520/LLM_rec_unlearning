@@ -10,6 +10,7 @@ import numpy as np
 output_dir = "dataset"
 DATASET = "ml-100k"
 COL_NAME = "class:token_seq"
+K = 5
 
 item_attr_path = os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item")
 items = pd.read_csv(item_attr_path, delimiter='\t')
@@ -59,9 +60,21 @@ kmeans.fit(word_embeddings_2d)
 # 获取每个类目的聚类标签
 cluster_labels = kmeans.labels_
 
+
+categories_map = {}
 # 输出每个类目对应的聚类标签
 for category, label in zip(categories, cluster_labels):
     print(f"Category: {category}, Cluster: {label}")
+    label = int(label)
+    if label not in categories_map:
+        categories_map[label] = []  # 如果该标签还没有，初始化为空列表
+    categories_map[label].append(category)
+
+
+import json
+# 将矩阵写入 CSV 文件
+with open(f'{DATASET}-{K}-cluster.csv', 'w', newline='') as f:
+    json.dump(categories_map, f, indent=4)
 
 import matplotlib.pyplot as plt
 # 可视化聚类结果
@@ -84,3 +97,4 @@ for k in range(2, 11):
     kmeans.fit(word_embeddings_2d)
     score = silhouette_score(word_embeddings_2d, kmeans.labels_)
     print(f"K={k}, Silhouette Score={score}")
+
