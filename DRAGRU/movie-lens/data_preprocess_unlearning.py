@@ -27,7 +27,7 @@ def find_model_files(directory_path, model_name):
 
 CANDIDATE_ITEM_NUM = 50
 HISTORY_INTER_LIMIT = 100
-selection_strategy = SelectionStrategy.RANDOM
+selection_strategy = SelectionStrategy.GROUP
 # 获取candidate item 的传统推荐模型
 MODEL = "BPR"
 # 处理的数据集
@@ -141,8 +141,10 @@ def group_selection(user_history):
     ratio = {}
     # 遍历每个分类及其对应的 item_id 列表
     for category_id, items in category_to_items.items():
+        if len(items) == 0:
+            continue
         category_ratio = round(len(items)/len(user_history), 1)
-        ratio[category_id] = round(category_ratio * HISTORY_INTER_LIMIT/len(items), 1)
+        ratio[category_id] = min(1.0, round(category_ratio * HISTORY_INTER_LIMIT/len(items), 1))
 
     selected_items = selection_by_ratio(category_to_items, ratio)
     return user_history[user_history['item_id'].isin(selected_items)]
