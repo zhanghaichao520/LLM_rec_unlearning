@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 
+## 切割数据集， 按照item的分类和数据的比例，用于DP计算最佳分配比例
+
 # 假设 DATASET 是一个目录，包含用户、物品和交互数据
 # 创建保存目录
 output_dir = "dataset"
@@ -33,8 +35,10 @@ def get_testdata_by_labels(inter_df, categories):
 
     return inter_df[inter_df['item_id:token'].isin(filtered_item_ids)]
 
-
-
+import json
+# 读取 JSON 格式的文件并将其转换为字典
+with open(f'{DATASET}-5-cluster.csv', 'r') as f:
+    categories_map = json.load(f)
 # 生成切割后的数据集
 for ratio in ratios:
     # 随机抽样 inter_data 中的交互数据
