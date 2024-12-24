@@ -111,7 +111,6 @@ import random
 def selection_by_ratio(category_to_items, ratio):
     # 存储最终结果的列表
     selected_items = set()
-
     # 遍历每个分类及其对应的 item_id 列表
     for category_id, items in category_to_items.items():
         # 获取当前分类的保留比例
@@ -121,7 +120,18 @@ def selection_by_ratio(category_to_items, ratio):
         num_items_to_select = int(len(items) * category_ratio)
 
         # 随机选择需要保留的 item_id
-        selected_items.update(random.sample(items, num_items_to_select))
+        selected = set(random.sample(items, num_items_to_select))
+
+        # 更新 selected_items 和 unselect_items
+        selected_items.update(selected)
+
+    if len(selected_items) < HISTORY_INTER_LIMIT:
+        remaining_items = set()
+        for category_id, items in category_to_items.items():
+            remaining_items.update(set(items) - selected_items)  # 从所有分类中找出未选中的项目
+        # 从未选择的项目中随机选择剩余的数量
+        selected_items.update(random.sample(remaining_items, HISTORY_INTER_LIMIT - len(selected_items)))
+
 
     return selected_items
 
@@ -151,7 +161,7 @@ def group_selection(user_history):
 
 def dp_selection(user_history):
     category_to_items = classify_item(user_history)
-    avg_ratio = round(HISTORY_INTER_LIMIT/len(user_history), 1)
+    avg_ratio = 1
     ratio = {'0': 0.05 * avg_ratio, '1': 0.20 * avg_ratio, '2': 0.15 * avg_ratio,
              '3': 0.25 * avg_ratio, '4': 0.35 * avg_ratio}
     selected_items = selection_by_ratio(category_to_items, ratio)
