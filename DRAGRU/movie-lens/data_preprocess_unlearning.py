@@ -108,30 +108,33 @@ def classify_item(user_history):
 
 import random
 
-def selection_by_ratio(category_to_items, ratio):
+def selection_by_ratio(category_to_items, ratio, max_limit=HISTORY_INTER_LIMIT):
     # 存储最终结果的列表
     selected_items = set()
     # 遍历每个分类及其对应的 item_id 列表
     for category_id, items in category_to_items.items():
+        if len(items) == 0:
+            continue
         # 获取当前分类的保留比例
         category_ratio = ratio.get(category_id, 0)
 
+        min_count = 1
+        max_count = int(max_limit * category_ratio)
         # 根据比例计算需要保留的 item 数量
-        num_items_to_select = int(len(items) * category_ratio)
-
+        num_items_to_select = min(max_count, int(len(items) * category_ratio))
+        num_items_to_select = max(min_count, num_items_to_select)
         # 随机选择需要保留的 item_id
         selected = set(random.sample(items, num_items_to_select))
 
         # 更新 selected_items 和 unselect_items
         selected_items.update(selected)
 
-    if len(selected_items) < HISTORY_INTER_LIMIT:
-        remaining_items = set()
+    if len(selected_items) < max_limit:
+        remaining_items = {str(category): [] for category in categories_map.keys()}
         for category_id, items in category_to_items.items():
-            remaining_items.update(set(items) - selected_items)  # 从所有分类中找出未选中的项目
-        # 从未选择的项目中随机选择剩余的数量
-        selected_items.update(random.sample(remaining_items, HISTORY_INTER_LIMIT - len(selected_items)))
-
+            remaining_items[category_id].extend(set(items) - selected_items)
+        # 递归按照比例从未选择的项目中随机选择剩余的数量
+        selected_items.update(selection_by_ratio(remaining_items, ratio, max_limit - len(selected_items)))
 
     return selected_items
 
@@ -153,17 +156,18 @@ def group_selection(user_history):
     for category_id, items in category_to_items.items():
         if len(items) == 0:
             continue
-        category_ratio = round(len(items)/len(user_history), 1)
-        ratio[category_id] = min(1.0, round(category_ratio * HISTORY_INTER_LIMIT/len(items), 1))
+        ratio[category_id] = round(len(items)/len(user_history), 2)
 
     selected_items = selection_by_ratio(category_to_items, ratio)
     return user_history[user_history['item_id'].isin(selected_items)]
 
 def dp_selection(user_history):
     category_to_items = classify_item(user_history)
-    avg_ratio = 1
-    ratio = {'0': 0.05 * avg_ratio, '1': 0.20 * avg_ratio, '2': 0.15 * avg_ratio,
-             '3': 0.25 * avg_ratio, '4': 0.35 * avg_ratio}
+    # ml-100k BPR
+    ratio = {'0': 0.05, '1': 0.05, '2': 0.35, '3': 0.50, '4': 0.05}
+
+    # ml-100k LightGCN
+    # ratio = {'0': 0.05, '1': 0.20, '2': 0.15, '3': 0.25, '4': 0.35}
     selected_items = selection_by_ratio(category_to_items, ratio)
     return user_history[user_history['item_id'].isin(selected_items)]
 
