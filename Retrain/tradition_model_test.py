@@ -75,8 +75,6 @@ def run_recbole(
     # trainer loading and initialization
     trainer = get_trainer(config["MODEL_TYPE"], config["model"])(config, model)
 
-    rec_utils = RecUtils(model=MODEL, dataset=DATASET, config_file_list=config_file_list, config_dict=config)
-
     # model evaluation
     test_result = trainer.evaluate(
         test_data, load_best_model=saved, show_progress=config["show_progress"],

@@ -6,7 +6,7 @@ import numpy as np
 import re
 import time
 DATASET = "ml-100k"
-MODEL = "LightGCN"
+MODEL = "BPR"
 config_files = "config_file/ml-100k.yaml"
 
 models = []

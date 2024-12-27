@@ -1,12 +1,7 @@
 import argparse
-import logging
 import sys
 import torch.distributed as dist
-from collections.abc import MutableMapping
 from logging import getLogger
-
-from ray import tune
-from tqdm import tqdm
 
 from recbole.config import Config
 from recbole.data import (
@@ -24,13 +19,14 @@ from recbole.utils import (
     get_environment,
 )
 
+
 def run_recbole(
     model=None,
     dataset=None,
     config_file_list=None,
     config_dict=None,
     saved=True,
-    queue=None,
+    model_file=None
 ):
     r"""A fast running api, which includes the complete process of
     training and testing a model on a specified dataset
@@ -76,16 +72,23 @@ def run_recbole(
 
     # trainer loading and initialization
     trainer = get_trainer(config["MODEL_TYPE"], config["model"])(config, model)
-
-    # model training
-    best_valid_score, best_valid_result = trainer.fit(
-        train_data, valid_data, saved=saved, show_progress=config["show_progress"]
-    )
-
-    # model evaluation
-    test_result = trainer.evaluate(
-        test_data, load_best_model=saved, show_progress=config["show_progress"],
-    )
+    test_result = None
+    if model_file is None:
+        # model training
+        best_valid_score, best_valid_result = trainer.fit(
+            train_data, valid_data, saved=saved, show_progress=config["show_progress"]
+        )
+        logger.info(set_color("best valid ", "yellow") + f": {best_valid_result}")
+        test_result = trainer.evaluate(
+            test_data, load_best_model=saved, show_progress=config["show_progress"]
+        )
+    else:
+        # model evaluation
+        test_result = trainer.evaluate(
+            test_data, load_best_model=saved, show_progress=config["show_progress"],
+            model_file=model_file
+        )
+    logger.info(set_color("test result", "yellow") + f": {test_result}")
 
     environment_tb = get_environment(config)
     logger.info(
@@ -93,34 +96,19 @@ def run_recbole(
         + environment_tb.draw()
     )
 
-    logger.info(set_color("best valid ", "yellow") + f": {best_valid_result}")
-    logger.info(set_color("test result", "yellow") + f": {test_result}")
 
-    result = {
-        "best_valid_score": best_valid_score,
-        "valid_score_bigger": config["valid_metric_bigger"],
-        "best_valid_result": best_valid_result,
-        "test_result": test_result,
-    }
-
-    if not config["single_spec"]:
-        dist.destroy_process_group()
-
-    if config["local_rank"] == 0 and queue is not None:
-        queue.put(result)  # for multiprocessing, e.g., mp.spawn
-
-    return result  # for the single process
+    return test_result["hit@10"]  # for the single process
 
 
-import time
 
 if __name__ == "__main__":
-    start_time = time.time()
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", "-m", type=str, default="LightGCN", help="name of models")
+    parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-1m-remain", help="name of datasets"
+        "--dataset", "-d", type=str, default="ml-100k-SISA-part0", help="name of datasets"
+    )
+    parser.add_argument(
+        "--model_file", "-mf", type=str, default=None, help="model_file"
     )
     parser.add_argument("--config_files", type=str, default=None, help="config files")
     parser.add_argument(
@@ -142,21 +130,22 @@ if __name__ == "__main__":
         help="the global rank offset of this group",
     )
 
-
     args, _ = parser.parse_known_args()
 
     config_file_list = (
         args.config_files.strip().split(" ") if args.config_files else None
     )
-    config = {"topk": [5, 10, 20], "metrics":["Hit", "NDCG", "mrr"]}
+
+    config_dict = {"normalize_all": False, "topk": [10],
+                   "metrics": ["Hit", "mrr"],
+                   "checkpoint_dir": f"SISA/saved_{args.model}_{args.dataset.split('-SISA')[0]}"}
 
     res = run_recbole(
         model=args.model,
         dataset=args.dataset,
         config_file_list=config_file_list,
-        config_dict=config,
+        config_dict=config_dict,
         saved=True,
+        model_file=args.model_file
     )
-
-    end_time = time.time()
-    print(f"代码执行时间: {end_time - start_time:.6f} 秒")
+    print(res)

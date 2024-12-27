@@ -1,4 +1,5 @@
 /dataset/
+/data
 .idea
 __pycache__
 saved

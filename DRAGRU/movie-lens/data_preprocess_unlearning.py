@@ -31,7 +31,7 @@ selection_strategy = SelectionStrategy.DP
 # 获取candidate item 的传统推荐模型
 MODEL = "BPR"
 # 处理的数据集
-DATASET = "ml-100k"
+DATASET = "ml-1m"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 config_files = f"config_file/{DATASET}.yaml"
 config = {"normalize_all": False}
@@ -63,7 +63,7 @@ item_attr_dict = {
     str(row["item_id:token"]): {
         "movie_title": row["movie_title:token_seq"],
         "release_year": row["release_year:token"],
-        "class": row["class:token_seq"]
+        "class": row["genre:token_seq"]
     }
     for _, row in item_attr_df.iterrows()
 }
@@ -145,7 +145,7 @@ def random_selection(user_history):
 
 def avg_selection(user_history):
     category_to_items = classify_item(user_history)
-    ratio = {str(i): round(HISTORY_INTER_LIMIT/len(user_history), 1) for i in range(1, 6)}
+    ratio = {str(i): round(HISTORY_INTER_LIMIT/len(user_history), 1) for i in range(0, 5)}
     selected_items = selection_by_ratio(category_to_items, ratio)
     return user_history[user_history['item_id'].isin(selected_items)]
 
@@ -164,7 +164,9 @@ def group_selection(user_history):
 def dp_selection(user_history):
     category_to_items = classify_item(user_history)
     # ml-100k BPR
-    ratio = {'0': 0.05, '1': 0.05, '2': 0.35, '3': 0.50, '4': 0.05}
+    # ratio = {'0': 0.05, '1': 0.05, '2': 0.35, '3': 0.50, '4': 0.05}
+    # ml-1m BPR
+    ratio = {'0': 0.05, '1': 0.50, '2': 0.05, '3': 0.05, '4': 0.35}
 
     # ml-100k LightGCN
     # ratio = {'0': 0.05, '1': 0.20, '2': 0.15, '3': 0.25, '4': 0.35}
