@@ -5,16 +5,18 @@ import torch
 import numpy as np
 import re
 import time
-DATASET = "ml-100k"
+DATASET = "netflix-process"
 MODEL = "BPR"
-config_files = "config_file/ml-100k.yaml"
+config_files = "config_file/netflix-process.yaml"
 
 models = []
 K = 5
 ratios = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
 
-for filename in os.listdir("saved/"):
-    models.append(os.path.join("saved/", filename))
+model_dir = f"DRAGRU/saved_{MODEL}_DP"
+os.makedirs(model_dir, exist_ok=True)
+for filename in os.listdir(model_dir):
+    models.append(os.path.join(model_dir, filename))
 models = sorted(models)
 
 count = 0
@@ -24,13 +26,12 @@ for index, ratio in enumerate(ratios):
     for label in range(K):
         start_time = time.time()
 
-
         dataset_name = f"{DATASET}-{int(ratio * 100)}-{label}"
 
         if count < len(models):
             # 构造命令行
             command = [
-                "/enter/envs/rella/bin/python", "/root/haichao/LLM_rec_unlearning/DRAGRU/movie-lens/data_process/train.py",  # 脚本路径
+                "/enter/envs/rella/bin/python", "/root/haichao/LLM_rec_unlearning/DRAGRU/netflix/data_process/train.py",  # 脚本路径
                 "--model", MODEL,  # 输入文件
                 "--dataset", dataset_name,  # 输出文件
                 "--model_file", models[count], # 输出文件
@@ -40,7 +41,7 @@ for index, ratio in enumerate(ratios):
             # 构造命令行
             command = [
                 "/enter/envs/rella/bin/python",
-                "/root/haichao/LLM_rec_unlearning/DRAGRU/movie-lens/data_process/train.py",  # 脚本路径
+                "/root/haichao/LLM_rec_unlearning/DRAGRU/netflix/data_process/train.py",  # 脚本路径
                 "--model", MODEL,  # 输入文件
                 "--dataset", dataset_name,  # 输出文件
                 "--config_files", config_files

@@ -102,7 +102,7 @@ def run_recbole(
 
 
 if __name__ == "__main__":
-    config_dict = {"normalize_all": False, "topk": [10], "metrics": ["Hit", "mrr"]}
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
@@ -134,6 +134,9 @@ if __name__ == "__main__":
 
     args, _ = parser.parse_known_args()
 
+    config_dict = {"normalize_all": False, "topk": [10],
+                   "metrics": ["Hit", "mrr"],
+                   "checkpoint_dir": f"DRAGRU/saved_{args.model}_DP"}
     config_file_list = (
         args.config_files.strip().split(" ") if args.config_files else None
     )
