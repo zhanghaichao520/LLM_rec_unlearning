@@ -2,7 +2,7 @@ from DRAGRU.recbole_utils import RecUtils
 
 MODEL = "BPR"
 # 处理的数据集
-DATASET = "ml-1m"
+DATASET = "netflix-process"
 
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 config_files = f"config_file/{DATASET}.yaml"

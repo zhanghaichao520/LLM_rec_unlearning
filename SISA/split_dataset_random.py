@@ -6,13 +6,13 @@ import os
 # 创建保存目录
 output_dir = "dataset"
 # 直接切remain集合， 和切原始集合在删掉forget集的效果一样
-ORI_DATASET = "ml-1m"
+ORI_DATASET = "netflix-process"
 DATASET = f"{ORI_DATASET}-remain"
 
 # 切割比例
 split_num = 3
 items = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item"), delimiter='\t')
-user_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.user"), delimiter='\t')
+# user_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.user"), delimiter='\t')
 inter_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.inter"), delimiter='\t')
 forget_inter_data = pd.read_csv(os.path.join(f"{output_dir}/{ORI_DATASET}-forget", f"{ORI_DATASET}-forget.inter"), delimiter='\t')
 
@@ -83,7 +83,7 @@ for idx, split in enumerate(splits):
     os.makedirs(output, exist_ok=True)
     # 保存切割后的交互数据
     split.to_csv(os.path.join(output, f'{dataset_name}.inter'), sep='\t', index=False)
-    user_data.to_csv(os.path.join(output, f'{dataset_name}.user'), sep='\t', index=False)
+    # user_data.to_csv(os.path.join(output, f'{dataset_name}.user'), sep='\t', index=False)
     items.to_csv(os.path.join(output, f'{dataset_name}.item'), sep='\t', index=False)
 
     print(f"Generated dataset: {dataset_name}, inter len: {len(split)}")

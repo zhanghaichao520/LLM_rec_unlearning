@@ -4,10 +4,10 @@ import torch
 # 获取candidate item 的传统推荐模型
 MODEL = "BPR"
 # 处理的数据集
-DATASET = "ml-1m-remain"
-model_dir = "SISA/saved_BPR_ml-1m-remain/"
+DATASET = "netflix-process-remain"
+model_dir = "SISA/saved_BPR_netflix-process-remain/"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
-config_files = f"config_file/ml-1m.yaml"
+config_files = f"config_file/netflix-process.yaml"
 config = {"normalize_all": False,"topk":[5,10,20], "metrics": ["NDCG","Hit"]}
 config_file_list = (
     config_files.strip().split(" ") if config_files else None
