@@ -1,3 +1,5 @@
+import os
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 from DRAGRU.recbole_utils import RecUtils
 import pandas as pd
 import os
@@ -7,10 +9,12 @@ from recbole.utils import set_color
 from enum import Enum
 
 class SelectionStrategy(Enum):
+    Non = ("Non Selection", 0)
     RANDOM = ("Random Selection", 1)
     AVERAGE = ("Average Selection", 2)
     GROUP = ("Group Selection", 3)
     DP = ("DP Selection", 4)
+    CA = ("Cross attention", 5)
 
     def __init__(self, description, value):
         self.description = description
@@ -27,9 +31,9 @@ def find_model_files(directory_path, model_name):
 
 CANDIDATE_ITEM_NUM = 50
 HISTORY_INTER_LIMIT = 100
-selection_strategy = SelectionStrategy.DP
+selection_strategy = SelectionStrategy.Non
 # 获取candidate item 的传统推荐模型
-MODEL = "BPR"
+MODEL = "LightGCN"
 # 处理的数据集
 DATASET = "ml-1m"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
@@ -139,6 +143,9 @@ def selection_by_ratio(category_to_items, ratio, max_limit=HISTORY_INTER_LIMIT):
     return selected_items
 
 
+def non_selection(user_history):
+    return user_history.head(10)
+
 def random_selection(user_history):
     return user_history.sample(n=HISTORY_INTER_LIMIT, random_state=42)
 
@@ -173,6 +180,94 @@ def dp_selection(user_history):
     selected_items = selection_by_ratio(category_to_items, ratio)
     return user_history[user_history['item_id'].isin(selected_items)]
 
+##============== attention
+import torch
+import torch.nn as nn
+import pandas as pd
+import numpy as np
+
+embedding_dim = 64
+# 生成物品的属性嵌入表示（可以考虑根据实际情况进行预训练嵌入或者随机初始化）
+item_embeddings = {}
+for item_id, attributes in item_attr_dict.items():
+    item_embeddings[item_id] = torch.randn(embedding_dim)  # 随机初始化物品嵌入（示例）
+
+
+import torch
+import torch.nn as nn
+
+
+class AttentionSelector(nn.Module):
+    def __init__(self, embedding_dim):
+        super(AttentionSelector, self).__init__()
+        # 通过线性层生成注意力权重
+        self.query_layer = nn.Linear(embedding_dim, embedding_dim)
+        self.key_layer = nn.Linear(embedding_dim, embedding_dim)
+        self.value_layer = nn.Linear(embedding_dim, embedding_dim)
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, query, key, value):
+        """
+        基于给定的查询、键和值计算注意力
+        query: 当前候选项的embedding
+        key: 历史交互的embedding
+        value: 物品属性的embedding
+        """
+        # 计算查询与键之间的相似度（即注意力分数）
+        attention_scores = torch.matmul(query, key.transpose(-2, -1)) / np.sqrt(query.size(-1))
+        attention_weights = self.softmax(attention_scores)
+
+        # 使用注意力权重加权历史交互
+        output = torch.matmul(attention_weights, value)
+        return output, attention_weights
+
+def attention_selection(user_history: pd.DataFrame, candidate_items: list,
+                        embedding_dim: int = 64):
+    """
+    基于注意力机制从历史交互中筛选出最相关的交互，以推荐给用户最合适的候选物品。
+
+    :param user_history: 用户历史交互记录 (pandas DataFrame)，包含 item_id, user_id 和 rating 列
+    :param candidate_items: 候选物品 ID 列表
+    :param embedding_dim: 嵌入维度，默认为64
+    :return: 筛选后的历史交互和对应的注意力权重
+    """
+
+
+
+    # 将用户历史交互映射为物品嵌入
+    history_embeddings = []
+    for idx, row in user_history.iterrows():
+        item_id = row['item_id']
+        rating = row['rating']
+
+        item_embedding = item_embeddings.get(item_id, torch.zeros(embedding_dim))
+        history_embeddings.append(item_embedding * rating * rating)  # 根据评分加权
+
+    # 转换为Tensor
+    history_embeddings = torch.stack(history_embeddings)
+
+    # 创建候选物品嵌入
+    candidate_embeddings = []
+    for item_id in candidate_items:
+        candidate_embeddings.append(item_embeddings.get(item_id, torch.zeros(embedding_dim)))
+
+    candidate_embeddings = torch.stack(candidate_embeddings)
+
+    # 假设用户的当前查询是候选物品的嵌入（可根据需要自定义）
+    query = candidate_embeddings.mean(dim=0).unsqueeze(0)  # 这里使用候选物品的均值作为查询
+
+    num_heads = 8
+    # 初始化模型并运行
+    model = AttentionSelector(embedding_dim)
+    scores, attention_weights = model(query, history_embeddings, history_embeddings)
+
+    # 对注意力权重进行排序，选择最重要的top_k个历史交互
+    attention_weights = attention_weights.squeeze().detach().numpy()
+    top_k_indices = np.argsort(attention_weights)[-HISTORY_INTER_LIMIT:]
+
+    # 返回筛选出的历史交互及对应的注意力权重
+    selected_history = user_history.iloc[top_k_indices]
+    return selected_history
 
 #==========================================================
 
@@ -182,8 +277,14 @@ def generate_recommendation_text(user_id):
     user_info = user_profile_df[user_profile_df['user_id:token'] == user_id].iloc[0]
     user_profile_text = f"He is {user_info['age:token']} years old, and works as {user_info['occupation:token']}."
 
+    # 获取推荐电影列表 (仅 item_id 列表)
+    candidate_item_ids = rec_utils.get_recommandation_list(ori_user_id=user_id, topk=CANDIDATE_ITEM_NUM, model_file=MODEL_FILE)
+
     # 从训练集中获取用户的历史观看记录
     user_history = inter_df_remain[inter_df_remain['user_id'] == str(user_id)]
+    # 无策略
+    if selection_strategy == SelectionStrategy.Non:
+        user_history = non_selection(user_history)
     # 如果用户的交互数量过多， 使用一些策略筛选
     if len(user_history) > HISTORY_INTER_LIMIT:
         # 随机策略
@@ -198,6 +299,8 @@ def generate_recommendation_text(user_id):
         # 动态规划策略（背包优化）
         if selection_strategy == SelectionStrategy.DP:
             user_history = dp_selection(user_history)
+        if selection_strategy == SelectionStrategy.CA:
+            user_history = attention_selection(user_history, candidate_item_ids)
 
     history_movies = []
     for _, row in user_history.iterrows():
@@ -209,8 +312,6 @@ def generate_recommendation_text(user_id):
     type = "remain" if len(history_movies) > 2 else "forget"
     history_movies = " \n - ".join(history_movies)
 
-    # 获取推荐电影列表 (仅 item_id 列表)
-    candidate_item_ids = rec_utils.get_recommandation_list(ori_user_id=user_id, topk=CANDIDATE_ITEM_NUM, model_file=MODEL_FILE)
 
     # 根据推荐的 item_id 获取电影名称
     candidate_list = []

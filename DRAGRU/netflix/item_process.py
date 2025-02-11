@@ -18,7 +18,7 @@ import pandas as pd
 user_interaction_count = inter_df.groupby('user_id:token').size()
 
 # Step 2: 筛选交互记录数在200到500之间的用户
-valid_users = user_interaction_count[(user_interaction_count >= 200) & (user_interaction_count <= 210)].index
+valid_users = user_interaction_count[(user_interaction_count >= 300) & (user_interaction_count <= 320)].index
 
 # Step 3: 根据筛选出的用户ID，提取对应的记录
 filtered_inter_df = inter_df[inter_df['user_id:token'].isin(valid_users)]

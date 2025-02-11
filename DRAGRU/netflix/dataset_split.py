@@ -1,9 +1,6 @@
 ## 按照用户切分forget集和remain集
-from recbole.utils import set_color
 import os
 import pandas as pd
-from tqdm import tqdm
-import random
 
 # 创建保存目录
 output_dir = "dataset"
@@ -28,6 +25,7 @@ print("*" * 30)
 print("origin dataset size:")
 print(f"item_attr_df : {len(item_attr_df)}")
 print(f"inter_df : {len(inter_df)}")
+print(f"inter item count : {len(inter_df['item_id:token'].unique())}")
 print("*" * 30)
 
 import pandas as pd
@@ -97,7 +95,13 @@ def split_interactions_with_user_logic(interaction_df, frac=0.2, random_state=42
 # 调用函数
 remain_set, forget_set, stats = split_interactions_with_user_logic(inter_df, frac=ratio)
 
+import numpy as np
+difference = np.setdiff1d(inter_df["item_id:token"].unique(), remain_set["item_id:token"].unique())
 
+rows = forget_set[forget_set["item_id:token"].isin(difference) ]
+remain_set = pd.concat([remain_set, rows], ignore_index=True)
+
+forget_set = forget_set[~forget_set.isin(rows)].dropna(how='all').reset_index(drop=True)
 
 # Step 4: 保存数据到文件
 def save_dataframe(df, filename):
@@ -108,7 +112,9 @@ save_dataframe(item_attr_df, f'{DATASET_forget}/{DATASET_forget}.item')
 
 print("*" * 30)
 print("forget dataset size:")
-print(f"inter_df : {len(forget_set)}")
+print(f"forget inter count : {len(forget_set)}")
+print(f"forget interaction item count : {len(forget_set['item_id:token'].unique())}")
+
 print("*" * 30)
 
 save_dataframe(remain_set, f'{DATASET_remain}/{DATASET_remain}.inter')
@@ -117,6 +123,7 @@ save_dataframe(item_attr_df, f'{DATASET_remain}/{DATASET_remain}.item')
 print("*" * 30)
 print("remain dataset size:")
 print(f"remain_interaction : {len(remain_set)}")
+print(f"remain_interaction item count : {len(remain_set['item_id:token'].unique())}")
 print("*" * 30)
 
 print("数据切分并保存完成！")

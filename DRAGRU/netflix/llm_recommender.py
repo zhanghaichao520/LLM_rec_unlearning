@@ -14,10 +14,10 @@ use_LLM = True
 DEVICE = "cuda"  # 使用CUDA
 DEVICE_ID = "0"  # CUDA设备ID，如果未设置则为空
 CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE  # 组合CUDA设备信息
-model_path = '/root/haichao/modelscope_model/LLM-Research/'
-model_name = 'Meta-Llama-3-8B-Instruct'
+model_path = '/root/haichao/modelscope_model/deepseek-ai/'
+model_name = 'DeepSeek-R1-Distill-Qwen-7B'
 model_name_or_path = os.path.join(model_path, model_name)
-prompt_files = 'netflix-process_BPR_prompt_top50_SelectionStrategy.RANDOM_remain.json'
+prompt_files = 'netflix-process_BPR_prompt_top50_SelectionStrategy.Non_remain.json'
 max_retries = 5  # 最大重试次数
 
 # 清理GPU内存函数

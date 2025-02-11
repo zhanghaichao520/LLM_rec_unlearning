@@ -5,9 +5,9 @@ import torch
 import numpy as np
 import re
 import time
-DATASET = "netflix-process-remain"
-MODEL = "BPR"
-config_files = "config_file/netflix-process.yaml"
+DATASET = "ml-1m-remain"
+MODEL = "LightGCN"
+config_files = "config_file/ml-1m.yaml"
 
 split_num = 3
 for idx in range(0, split_num):

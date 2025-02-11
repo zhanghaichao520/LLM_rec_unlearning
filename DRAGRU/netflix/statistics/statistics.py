@@ -5,11 +5,11 @@ from DRAGRU.recbole_utils import RecUtils
 
 MODEL = "LightGCN"
 # 处理的数据集
-DATASET = "yelp-2018"
+DATASET = "netflix-process"
 # 默认配置文件， 注意 normalize_all: False 便于保留原始的时间和rating
 config = {"normalize_all": False}
 # config_files = None
-config_files = "config_file/yelp-2018.yaml"
+config_files = "config_file/netflix-process.yaml"
 config_file_list = (
     config_files.strip().split(" ") if config_files else None
 )

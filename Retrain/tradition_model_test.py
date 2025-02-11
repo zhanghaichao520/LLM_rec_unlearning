@@ -19,7 +19,7 @@ from recbole.utils import (
     get_environment,
 )
 
-model_file = "saved/BPR-ml-100k-Nov-27-2024_19-1"
+model_file = "saved/BPR-Jan-27-2025_11-32-08.pth"
 
 
 def run_recbole(
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-100k", help="name of datasets"
+        "--dataset", "-d", type=str, default="ml-100k-forget", help="name of datasets"
     )
     parser.add_argument("--config_files", type=str, default=None, help="config files")
     parser.add_argument(

@@ -6,11 +6,11 @@ import os
 # 创建保存目录
 output_dir = "dataset"
 # 直接切remain集合， 和切原始集合在删掉forget集的效果一样
-ORI_DATASET = "netflix-process"
+ORI_DATASET = "ml-1m"
 DATASET = f"{ORI_DATASET}-remain"
 
 # 切割比例
-split_num = 3
+split_num = 10
 items = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item"), delimiter='\t')
 # user_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.user"), delimiter='\t')
 inter_data = pd.read_csv(os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.inter"), delimiter='\t')
