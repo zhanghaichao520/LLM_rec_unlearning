@@ -1,4 +1,58 @@
-# LLM_rec_unlearning
+<!-- markdownlint-disable first-line-h1 -->
+<!-- markdownlint-disable html -->
+<!-- markdownlint-disable no-duplicate-header -->
+
+
+
+
+<div align="center">
+  <img src="assets/logo1.png" width="100%" alt="DeepSeek AI" />
+</div>
+
+<hr>
+
+
+
+
+[![PyPi Latest Release](https://img.shields.io/pypi/v/recbole)](https://pypi.org/project/recbole/)
+[![Conda Latest Release](https://anaconda.org/aibox/recbole/badges/version.svg)](https://anaconda.org/aibox/recbole)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![arXiv](https://img.shields.io/badge/arXiv-RecBole-%23B21B1B)](https://arxiv.org/abs/2511.05494)
+
+
+<p align="center">
+<img src="assets/framework.png" style="width: 1000px" align=center>
+</p>
+<p align="center">
+<a href="">The framework of CRAGRU.</a>       
+</p>
+
+## Overview
+
+**CRAGRU** is a unified framework that integrates **RAG (Retrieval-Augmented Generation)**, **Large Language Models (LLMs)**, and **Recommendation Unlearning**.  
+It enables:
+
+- User-level and item-level unlearning  
+- Debiasing through controlled prompt design  
+- LLM-based recommendation generation  
+- Comparison and fusion with traditional recommender models  
+- Dataset clustering, DP strategy exploration, knapsack optimization, and more
+
+The framework is modular, reproducible, and designed for flexible experimentation.
+
+## 📦 Key Features
+
+🔍 RAG-Enhanced LLM Recommendation
+Structured prompt design ensures controlled and interpretable LLM reasoning.
+
+🧹 Efficient Recommendation Unlearning
+Supports flexible removal of user interactions or item histories.
+
+📈 Dataset Analytics Suite
+Includes clustering, statistical analysis, and knapsack-based optimization.
+
+🧩 Modular Architecture
+Every stage can be swapped or extended easily for research purposes.
 
 ## Installation
 DRAGRU works with the following operating systems:
@@ -17,37 +71,66 @@ pip install -r requirements.txt
 ```
 Download [GoogleNews-vectors-negative300.bin](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit) and put it in the library file of your python directory 
 
-## Quick-Start
-```plaintext
-├── `SISA/`
-│   ├── `LightGCN_SISA.py`    - SISA implementation for the LightGCN model
-│   └── `MF_SISA.py`  - SISA implementation for the MF model
-│
-├── `Retrain/`
-│   ├── `tradition_model.py`    - Training and testing of traditional recommendation models; model files are stored in the `saved` directory
-│   └── `tradition_model_test.py`      - Testing of traditional recommendation models; requires specifying the model file in the code
-│
-├── `DRAGRU/`
-│   ├── `llm` - Large Language Model (LLM) module
-│      ├── `model_download.py` - Downloads the large model from Modelscope
-│   └── `movie-lens` - Unlearning code for the MovieLens dataset based on the large model
-│      ├── `data_preprocess_unlearning.py` - 2. Data preprocessing for unlearning, constructs prompts based on the forget set and remain set, and outputs the constructed prompt files
-│      ├── `dataset_split.py` - 1. Splits the forget set and remain set, outputs the split datasets stored in the `dataset` directory
-│      ├── `evaluation.py` - 4. Evaluation of results, generates evaluation metrics based on the recommendation results from step 3
-│      ├── `llm_recommender.py` - 3. Makes recommendations based on the large model, takes prompt files as input and outputs recommendations; can also default to traditional model recommendations if LLM is not used
-│   └── `data_process` - Splits datasets based on various ratios and categories; split results are stored in the `dataset/` directory for training and generating recommendations
-│        └── `batch_execute.py`  - Script for batch execution of Python commands, used for running multiple training tasks at once
-│   └── `statistics` - Statistical analysis of dataset metrics
-│      ├── `item_cluster.py` - Item clustering (K-means + Google Word2Vec), with visualization
-│      ├── `knapsack.py` - Knapsack optimization algorithm, calculates the most relevant dataset ratios per category
-│      ├── `statistics.py` - Computes dataset statistics, such as average interactions per user
-│
-└── `config_file`  - Configuration files for running parameters of different datasets
+## 🚀 Quick Start (Full Execution Pipeline)
 
+Below is the **complete DRAGRU workflow**, including **one-sentence explanations** and **directly runnable commands**.
+
+---
+
+### **1️⃣ Split Forget / Remain Sets**
+**Description:** Splits the dataset into the *forget set* and *remain set*, which serve as the foundation for all downstream unlearning tasks.
+
+```bash
+python DRAGRU/movie-lens/dataset_split.py
 ```
-# overall process of DRAGAU
-1. split forget set and remain set : DRAGRU/movie-lens/dataset_split.py 
-2. item cluster for DP strategy : DRAGRU/movie-lens/statistics/item_cluster.py
-3. construct prompt by remain set (1) : DRAGRU/movie-lens/data_preprocess_unlearning.py
-4. run llm recommandation by (3 result as input file): DRAGRU/movie-lens/llm_recommender.py
-5. obtain metrics (4 result as input file) : DRAGRU/movie-lens/evaluation.py
+
+2️⃣ Item Clustering
+
+Description: Performs item clustering using K-means + Word2Vec to provide semantic grouping for DP strategies and prompt construction.
+
+```bash
+python DRAGRU/movie-lens/statistics/item_cluster.py
+```
+
+3️⃣ Construct LLM Prompts
+
+Description: Creates prompt files based on the remain set, serving as structured input for LLM-based recommendation.
+
+```bash
+python DRAGRU/movie-lens/data_preprocess_unlearning.py
+```
+
+4️⃣ Run LLM Recommendation
+
+Description: Generates recommendation results using a large language model, with optional fallback to traditional models.
+
+```bash
+python DRAGRU/movie-lens/llm_recommender.py --input prompt_file.json
+```
+
+5️⃣ Evaluate Results
+
+Description: Computes evaluation metrics using the recommendation results from the previous step.
+
+```bash
+python DRAGRU/movie-lens/evaluation.py --input recommender_output.json
+```
+
+## 🤝 Contributing
+
+Contributions, suggestions, and pull requests are welcome.
+Feel free to ask for improvements (README, visualization, scripts, etc.).
+
+## ⭐ If You Find This Useful
+
+Please consider ⭐ starring the repository — it's the best way to support this project.
+
+## Citation
+
+```bibtex
+@article{zhang2025customized,
+  title={Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning},
+  author={Zhang, Haichao and Zhang, Chong and Hu, Peiyu and Qiu, Shi and Wang, Jia},
+  journal={arXiv preprint arXiv:2511.05494},
+  year={2025}
+}
