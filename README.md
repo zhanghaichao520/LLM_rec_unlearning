@@ -6,7 +6,7 @@
 
 
 <div align="center">
-  <img src="assets/logo.png" width="70%" alt="DeepSeek AI" />
+  <img src="assets/logo.png" width="55%" alt="DeepSeek AI" />
 </div>
 
 <hr>
@@ -21,7 +21,7 @@
 
 
 <p align="center">
-<img src="assets/framework.png" style="width: 1000px" align=center>
+<img src="assets/framework.png" style="width: 700px" align=center>
 </p>
 <p align="center">
 <a href="">The framework of CRAGRU.</a>       
