@@ -24,12 +24,6 @@
 </p>
 
 
-<p align="center">
-<img src="assets/framework.png" style="width: 500px" align=center>
-</p>
-<p align="center">
-<a href="">The framework of CRAGRU.</a>       
-</p>
 
 
 ## :memo: TODO
@@ -41,10 +35,10 @@
 ## 📋 Table of Contents
 
 - [Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning](#Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning)
-  - [🔎 Overview](#-overview)
-  - [🛠️ Installation](#-installation)
+  - [🔎 Overview](#overview)
+  - [🛠️ Installation](#installation)
   - [🚀 Quick Start](#-quick-start)
-  - [⚙️ Citation](#-citation)
+  - [⚙️ Citation](#citation)
 
 
 ## Overview
@@ -59,6 +53,14 @@ It enables:
 - Dataset clustering, DP strategy exploration, knapsack optimization, and more
 
 The framework is modular, reproducible, and designed for flexible experimentation.
+
+<p align="center">
+<img src="assets/framework.png" style="width: 500px" align=center>
+</p>
+<p align="center">
+<a href="">The framework of CRAGRU.</a>       
+</p>
+
 
 ## 📦 Key Features
 
