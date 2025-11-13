@@ -156,3 +156,17 @@ Please consider ⭐ starring the repository — it's the best way to support thi
   journal={arXiv preprint arXiv:2511.05494},
   year={2025}
 }
+```
+
+---
+
+
+<div align="center">
+    
+[![GitHub contributors](https://img.shields.io/github/contributors/zhanghaichao520/LLM_rec_unlearning.svg)](https://github.com/zhanghaichao520/LLM_rec_unlearning/graphs/contributors)
+[![GitHub release](https://img.shields.io/github/v/release/zhanghaichao520/LLM_rec_unlearning)](https://github.com/zhanghaichao520/LLM_rec_unlearning/releases/latest)
+[![GitHub license](https://img.shields.io/github/license/zhanghaichao520/LLM_rec_unlearning?color=blue)](https://github.com/zhanghaichao520/LLM_rec_unlearning/blob/master/LICENSE)
+
+[![GitHub stars](https://img.shields.io/github/stars/zhanghaichao520/LLM_rec_unlearning)](https://github.com/zhanghaichao520/LLM_rec_unlearning)
+[![GitHub forks](https://img.shields.io/github/forks/zhanghaichao520/LLM_rec_unlearning)](https://github.com/zhanghaichao520/LLM_rec_unlearning/fork)
+</div>
