@@ -8,6 +8,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from tqdm import tqdm
 import time
 import re
+import generation_trie as gt
 
 # 设置设备参数
 use_LLM = True
@@ -17,7 +18,7 @@ CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE  # 组合CUDA设�
 model_path = '/root/haichao/modelscope_model/LLM-Research/'
 model_name = 'Meta-Llama-3-8B-Instruct'
 model_name_or_path = os.path.join(model_path, model_name)
-prompt_files = 'ml-1m_LightGCN_prompt_top50_SelectionStrategy.RANDOM_forget.json'
+prompt_files = 'ml-100k_BPR_prompt_top100_SelectionStrategy.RANDOM_remain.json'
 max_retries = 5  # 最大重试次数
 
 # 清理GPU内存函数
@@ -36,8 +37,11 @@ def call_llm(prompt):
 
     model_inputs = tokenizer([prompt], return_tensors="pt").to(CUDA_DEVICE)
 
+
+
     generated_ids = model.generate(model_inputs.input_ids,
                                    max_new_tokens=512,
+                                   # prefix_allowed_tokens_fn=prefix_allowed_tokens,
                                    attention_mask=attention_mask,
                                    pad_token_id=tokenizer.eos_token_id)
     generated_ids = [

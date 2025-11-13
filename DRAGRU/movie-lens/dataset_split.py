@@ -8,8 +8,8 @@ import random
 # 创建保存目录
 output_dir = "dataset"
 
-DATASET = "ml-100k"
-ratio = 0.1
+DATASET = "amazon-all-beauty-18"
+ratio = 0.01
 DATASET_forget = f"{DATASET}-forget"
 DATASET_remain = f"{DATASET}-remain"
 
@@ -18,7 +18,8 @@ os.makedirs(f"{output_dir}/{DATASET_forget}", exist_ok=True)
 os.makedirs(f"{output_dir}/{DATASET_remain}", exist_ok=True)
 
 user_profile_path = os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.user")
-user_profile_df = pd.read_csv(user_profile_path, delimiter='\t')
+if os.path.exists(user_profile_path):
+    user_profile_df = pd.read_csv(user_profile_path, delimiter='\t')
 
 item_attr_path = os.path.join(f"{output_dir}/{DATASET}", f"{DATASET}.item")
 item_attr_df = pd.read_csv(item_attr_path, delimiter='\t')
@@ -28,7 +29,8 @@ inter_df = pd.read_csv(inter_path, delimiter='\t')
 
 print("*" * 30)
 print("origin dataset size:")
-print(f"user_profile_df : {len(user_profile_df)}")
+if os.path.exists(user_profile_path):
+    print(f"user_profile_df : {len(user_profile_df)}")
 print(f"item_attr_df : {len(item_attr_df)}")
 print(f"inter_df : {len(inter_df)}")
 print("*" * 30)
@@ -106,7 +108,8 @@ remain_set, forget_set, stats = split_interactions_with_user_logic(inter_df, fra
 def save_dataframe(df, filename):
     df.to_csv(os.path.join(output_dir, filename), sep='\t', index=False)
 
-save_dataframe(user_profile_df, f'{DATASET_forget}/{DATASET_forget}.user')
+if os.path.exists(user_profile_path):
+    save_dataframe(user_profile_df, f'{DATASET_forget}/{DATASET_forget}.user')
 save_dataframe(forget_set, f'{DATASET_forget}/{DATASET_forget}.inter')
 save_dataframe(item_attr_df, f'{DATASET_forget}/{DATASET_forget}.item')
 
@@ -115,7 +118,8 @@ print("forget dataset size:")
 print(f"inter_df : {len(forget_set)}")
 print("*" * 30)
 
-save_dataframe(user_profile_df, f'{DATASET_remain}/{DATASET_remain}.user')
+if os.path.exists(user_profile_path):
+    save_dataframe(user_profile_df, f'{DATASET_remain}/{DATASET_remain}.user')
 save_dataframe(remain_set, f'{DATASET_remain}/{DATASET_remain}.inter')
 save_dataframe(item_attr_df, f'{DATASET_remain}/{DATASET_remain}.item')
 

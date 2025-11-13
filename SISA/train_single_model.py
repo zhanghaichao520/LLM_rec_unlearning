@@ -103,9 +103,9 @@ def run_recbole(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", "-m", type=str, default="BPR", help="name of models")
+    parser.add_argument("--model", "-m", type=str, default="LightGCN", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-100k-SISA-part0", help="name of datasets"
+        "--dataset", "-d", type=str, default="amazon-all-beauty-18", help="name of datasets"
     )
     parser.add_argument(
         "--model_file", "-mf", type=str, default=None, help="model_file"

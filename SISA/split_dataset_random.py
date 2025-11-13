@@ -6,7 +6,7 @@ import os
 # 创建保存目录
 output_dir = "dataset"
 # 直接切remain集合， 和切原始集合在删掉forget集的效果一样
-ORI_DATASET = "ml-1m"
+ORI_DATASET = "amazon-all-beauty-18"
 DATASET = f"{ORI_DATASET}-remain"
 
 # 切割比例
