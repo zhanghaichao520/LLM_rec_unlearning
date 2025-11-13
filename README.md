@@ -21,7 +21,7 @@
 
 
 <p align="center">
-<img src="assets/framework.png" style="width: 700px" align=center>
+<img src="assets/framework.png" style="width: 300px" align=center>
 </p>
 <p align="center">
 <a href="">The framework of CRAGRU.</a>       
