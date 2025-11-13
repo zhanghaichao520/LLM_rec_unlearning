@@ -19,6 +19,10 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-RecBole-%23B21B1B)](https://arxiv.org/abs/2511.05494)
 
+<p align="center">
+<strong><big>If you find our work useful, please consider giving us a star🌟</big></strong>
+</p>
+
 
 <p align="center">
 <img src="assets/framework.png" style="width: 500px" align=center>
@@ -26,6 +30,22 @@
 <p align="center">
 <a href="">The framework of CRAGRU.</a>       
 </p>
+
+
+## :memo: TODO
+
+- [x] Code Release
+- [x] Paper Release
+- [x] Datasets
+
+## 📋 Table of Contents
+
+- [Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning](#Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning)
+  - [🔎 Overview](#-overview)
+  - [🛠️ Installation](#-installation)
+  - [🚀 Quick Start](#-quick-start)
+  - [⚙️ Citation](#-citation)
+
 
 ## Overview
 
@@ -71,7 +91,7 @@ pip install -r requirements.txt
 ```
 Download [GoogleNews-vectors-negative300.bin](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit) and put it in the library file of your python directory 
 
-## 🚀 Quick Start (Full Execution Pipeline)
+## 🚀 Quick Start
 
 Below is the **complete DRAGRU workflow**, including **one-sentence explanations** and **directly runnable commands**.
 
