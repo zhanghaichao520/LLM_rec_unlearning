@@ -6,7 +6,7 @@
 
 
 <div align="center">
-  <img src="assets/logo1.png" width="100%" alt="DeepSeek AI" />
+  <img src="assets/logo.png" width="70%" alt="DeepSeek AI" />
 </div>
 
 <hr>
