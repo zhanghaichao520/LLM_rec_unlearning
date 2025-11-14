@@ -19,6 +19,13 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-RecBole-%23B21B1B)](https://arxiv.org/abs/2511.05494)
 
+[HomePage] | [Paper] | [Arxiv] | [中文版]
+
+[HomePage]: https://cragru.pages.dev/
+[Paper]: https://arxiv.org/pdf/2511.05494v1.pdf
+[Arxiv]: https://arxiv.org/abs/2511.05494
+[中文版]: README_CN.md
+
 <p align="center">
 <strong><big>If you find our work useful, please consider giving us a star🌟</big></strong>
 </p>
@@ -34,7 +41,7 @@
 
 ## 📋 Table of Contents
 
-- [Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning](#Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning)
+- Customized Retrieval-Augmented Generation with LLM for Debiasing Recommendation Unlearning
   - [🔎 Overview](#overview)
   - [🛠️ Installation](#installation)
   - [🚀 Quick Start](#-quick-start)
@@ -163,7 +170,7 @@ Please consider ⭐ starring the repository — it's the best way to support thi
 
 <div align="center">
     
-[![GitHub contributors](https://img.shields.io/github/contributors/zhanghaichao520/LLM_rec_unlearning.svg)](https://github.com/zhanghaichao520/LLM_rec_unlearning/graphs/contributors)
+<!-- [![GitHub contributors](https://img.shields.io/github/contributors/zhanghaichao520/LLM_rec_unlearning.svg)](https://github.com/zhanghaichao520/LLM_rec_unlearning/graphs/contributors) -->
 [![GitHub release](https://img.shields.io/github/v/release/zhanghaichao520/LLM_rec_unlearning)](https://github.com/zhanghaichao520/LLM_rec_unlearning/releases/latest)
 [![GitHub license](https://img.shields.io/github/license/zhanghaichao520/LLM_rec_unlearning?color=blue)](https://github.com/zhanghaichao520/LLM_rec_unlearning/blob/master/LICENSE)
 
