@@ -7,17 +7,16 @@
 
 
 
-[![PyPi Latest Release](https://img.shields.io/pypi/v/recbole)](https://pypi.org/project/recbole/)
-[![Conda Latest Release](https://anaconda.org/aibox/recbole/badges/version.svg)](https://anaconda.org/aibox/recbole)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![arXiv](https://img.shields.io/badge/arXiv-RecBole-%23B21B1B)](https://arxiv.org/abs/2511.05494)
 
-[主页] | [论文] | [Arxiv] | [English Version]
+<p align="center">
+  <a href="https://arxiv.org/abs/2511.05494" target="_blank"><img src="https://img.shields.io/badge/arXiv-2510.19600-red"></a>
+  <a href='https://cragru.pages.dev/'><img src='https://img.shields.io/badge/Project-Page-blue'></a>
+  <a href="./LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-MIT-blue.svg" target="_blank"></a>
+  <a href="https://huggingface.co/papers/2511.05494" target="_blank"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Daily Papers-red"></a>
 
-[主页]: https://cragru.pages.dev/
-[论文]: https://arxiv.org/pdf/2511.05494v1.pdf
-[Arxiv]: https://arxiv.org/abs/2511.05494
-[English version]: README.md
+
+</p >
+
 
 <p align="center">
 <strong><big>如果您觉得我们的工作有用，请考虑给我们点个星🌟</big></strong>
