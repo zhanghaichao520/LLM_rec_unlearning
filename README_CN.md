@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://arxiv.org/abs/2511.05494" target="_blank"><img src="https://img.shields.io/badge/arXiv-2510.19600-red"></a>
-  <a href='https://cragru.pages.dev/'><img src='https://img.shields.io/badge/Project-Page-blue'></a>
+  <a href='https://delicate-arithmetic-5ce7e1.netlify.app/'><img src='https://img.shields.io/badge/Project-Page-blue'></a>
   <a href="./LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-MIT-blue.svg" target="_blank"></a>
   <a href="https://huggingface.co/papers/2511.05494" target="_blank"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Daily Papers-red"></a>
 
